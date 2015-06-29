@@ -1,5 +1,5 @@
 # pragma once
-#include "StdAfx.h"
+#include "stdafx.h"
 #include "Sortiment.h"
 #include "Suessigkeit.h"
 #include <iostream>
