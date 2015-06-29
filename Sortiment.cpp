@@ -1,3 +1,4 @@
+# pragma once
 #include "StdAfx.h"
 #include "Sortiment.h"
 #include "Suessigkeit.h"
@@ -40,9 +41,7 @@ void Sortiment::Initialisiere_Datenbank()
 		file>>iTempID;
 		file>>sTempName;
 		file>>sTempPfad;
-		Suessigkeit *temp = new Suessigkeit(sTempPfad, sTempName, iTempID);
-		reference.push_back(&temp);
-		delete temp;
+		reference.push_back(new Suessigkeit(sTempPfad, sTempName, iTempID));
 	}
 	file.close();
 

@@ -30,7 +30,7 @@ int minHessian_swap = minHessian; // Fuer andere Klassen!
 using namespace std;
 using namespace cv;
 
-
+Sortiment *S = new Sortiment();
 
 CKinectProductClassifier::CKinectProductClassifier(CKinectShopApp *app)
 {
@@ -85,7 +85,7 @@ CKinectProductClassifier::CKinectProductClassifier(CKinectShopApp *app)
 			}
 		}
 	}
-	Sortiment *S = new Sortiment();
+	
 }
 
 CKinectProductClassifier::~CKinectProductClassifier()
@@ -218,7 +218,7 @@ Suessigkeit* CKinectProductClassifier::customsurfdetector(vector<Suessigkeit*> &
 //////////////////////////////////////////////////////////////////////////////////
 /// comparehist 
 //////////////////////////////////////////////////////////////////////////////////
-bool CKinectProductClassifier::compareMatHist(Mat src, MatND ref, int compare_method = CV_COMP_CORREL){
+bool CKinectProductClassifier::compareMatHist(Mat src, MatND ref, int compare_method){
 	Mat HSV;
 	MatND hist;
 	int histSize[2] = { 50, 60 };
@@ -308,22 +308,24 @@ void CKinectProductClassifier::classify(Mat *rgbImage )
 	auswahl.clear();
 	auswahl2.clear();
 
-	Suessigkeit::customresize(&colorImage, 600);
+	// Vergleich der Seitenverhaeltnisse
+	for (iter = (S->reference).begin(); iter != (S->reference).end(); iter++)
+	{
+		if (fabs(Suessigkeit::fGetRatio(colorImage) - (*iter)->fRatio) < 0.2) { auswahl.push_back((*iter)); }
+	}
 
-	for (iter = sortiment.begin(); iter != sortiment.end(); iter++)
-		{
-			if (compareMatHist(colorImage,( (*iter)->hist)))
-			{
-				auswahl.push_back((*iter));
-				cout << (*iter)->sName << " - ";
-			}
-		}
-	cout << endl;
+    Suessigkeit::customresize(colorImage, 600);
+	// Vergleich der Farbwerte
+	for (iter = auswahl.begin(); iter != auswahl.end(); iter++)
+	{
+			if (compareMatHist(colorImage,( (*iter)->hist))){ auswahl2.push_back((*iter)); }
+	}
+	
 
 	imshow("Kamerabild", colorImage);
-	cvtColor(*colorImage, colorImage, CV_BGR2GRAY);
+	cvtColor(colorImage, colorImage, CV_BGR2GRAY);
 
-	Suessigkeit* result = customsurfdetector(auswahl, colorImage);
+	Suessigkeit* result = customsurfdetector(auswahl2, colorImage);
 	if ((result)->sName != "NULL")
 	{
 		cout << "Es handelt sich um das Objekt " << result->sName << endl;

@@ -1,3 +1,4 @@
+#pragma once
 #include "StdAfx.h"
 #include "Suessigkeit.h"
 #include "opencv2/opencv.hpp"
