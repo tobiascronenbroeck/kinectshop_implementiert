@@ -11,6 +11,6 @@ public:
 	static int iGetSchranke();
 	void Initialisiere_Datenbank(); 
 	vector<Suessigkeit*> reference;
-	
+	void SQLtoINI();
 };
 

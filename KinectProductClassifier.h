@@ -17,6 +17,7 @@ public:
 	bool compareMatHist(Mat src, MatND ref, int compare_method = CV_COMP_CORREL);
 	Suessigkeit* customsurfdetector(vector<Suessigkeit*> &sortiment, Mat &img_scene, double minFlaeche = 300);
 	void classify(cv::Mat *colorImage);
+	bool compareRatio(Mat source, float fRefRatio);
 
 private:
 	CKinectShopApp *m_app;

@@ -1,16 +1,15 @@
 #include "stdafx.h"
-
-#include <algorithm>
-#include <iostream>
 #include "math.h"
 #include "Sortiment.h"
 #include "Suessigkeit.h"
-
 #include "KinectProductClassifier.h"
+#include "stdio.h"
+
 #include <fstream>
+#include <algorithm>
+#include <iostream>
 
 #define _CRT_SECURE_NO_DEPRECATE
-#include "stdio.h"
 #include "opencv2/opencv.hpp"
 #include "opencv2/imgproc/imgproc.hpp"
 #include "opencv2/highgui/highgui.hpp"
@@ -26,7 +25,6 @@
 
 int minHessian_swap = minHessian; // Fuer andere Klassen!
 
-//#include <iostream>
 using namespace std;
 using namespace cv;
 
@@ -101,9 +99,6 @@ CKinectProductClassifier::~CKinectProductClassifier()
 
 }
 
-//////////////////////////////////////////////////////////////////////////////////
-/// customsurfdetector returns an pointer to the detected object
-//////////////////////////////////////////////////////////////////////////////////
 Suessigkeit* CKinectProductClassifier::customsurfdetector(vector<Suessigkeit*> &sortiment, Mat &img_scene, double minFlaeche)
 {
 	
@@ -215,9 +210,6 @@ Suessigkeit* CKinectProductClassifier::customsurfdetector(vector<Suessigkeit*> &
 	return new Suessigkeit();
 }
 
-//////////////////////////////////////////////////////////////////////////////////
-/// comparehist 
-//////////////////////////////////////////////////////////////////////////////////
 bool CKinectProductClassifier::compareMatHist(Mat src, MatND ref, int compare_method){
 	Mat HSV;
 	MatND hist;
@@ -233,70 +225,29 @@ bool CKinectProductClassifier::compareMatHist(Mat src, MatND ref, int compare_me
 	return (compareHist(hist, ref, compare_method) > 0.05);
 }
 
+bool CKinectProductClassifier::compareRatio(Mat source, float fRefRatio){
 
-/*
-int Initialisiere_Datenbank(SWEET* pRefferenze, int iSchranke){
-	//iSchranke=63;
-	Mat tmpBild;	//Refferenzbild
-	string sDataArray[7] = {"1", "2", "3", "4", "5", "6", "7"};//, "8", "9", "10"}; //Array zum einlesen des Refferenzbildes
-	string sDataArray2[9] = {"Alpenmilch", "Fritt", "Joghurt", "KatzenOhren", 
-							"KitKat", "Knusperflakes", "Lakritz", "Schluempfe", "Yogurette"}; //Array zum einlesen der Refferenzbildordner
-	
-	
-	//Initialisieren des Arrays
-	for(int i=0; i < iSchranke; i++){
-		pRefferenze[i].fId = 0.0;
-		pRefferenze[i].sName = "";
-		pRefferenze[i].dFlaeche = 0;
-		pRefferenze[i].dMittelwert_Farbwert = 0;
-		pRefferenze[i].dMittelwert_Saettigung = 0;
+	float temp = source.rows / source.cols; //temp = ratio of the source-image
+
+	if (temp<1){
+
+		temp = temp / 1;
+
 	}
 
-	//über neun ordner a 10 refferenzbildern
-	for(int j = 0; j < 9; j++){
-		float fCount = 1.0;
-	for(int i = 0; i < 7; i++){
-		//Kennzeichnung der Süssigkeit
 
-		//Bildanalyse
-		string sRefferenze = "IniPics\\"+sDataArray2[j] +"\\" + sDataArray[i] + ".png";
-		tmpBild = imread(sRefferenze, 1);
-		
-		SWEET* sweet1 = new SWEET;
-		sweet1->dMittelwert_Farbwert = 0;
-		sweet1->dMittelwert_Saettigung = 0;
-		sweet1->dFlaeche = 0;
-		sweet1->fId = (float)j + fCount;
-		sweet1->sName = sDataArray2[j];
-		
-		HSV_Analyser(tmpBild, sweet1);
-		AREA_Analyser(sweet1);
-		pRefferenze[i+7*j] = *sweet1;
 
-		//Eindeutige ID
-		fCount += 0.01;
+	temp = Suessigkeit::fGetRatio(source) / fRefRatio; //temp = Ratio of the ratios
+
+	if (temp<1){
+
+		temp = temp / 1;
+
 	}
-	}
-	//eingelesene daten in Ini.cfg speichern, zum schnelleren Laden .... für inifunktion2
-	ofstream file("Ini.cfg");
-	for(int i=0;i<iSchranke;i++)
-	{
-		file<<pRefferenze[i].fId<<"\t"<<pRefferenze[i].sName<<"\t\t"<<pRefferenze[i].dMittelwert_Farbwert<<"\t"<<pRefferenze[i].dMittelwert_Saettigung<<"\t"<<pRefferenze[i].dFlaeche<<endl;
-	}
-	file.close();
-	return 0;
+
+	return (temp < 1.3); //or alternative threshold. 1,3 means 3:4 would be accepted as square. 
+
 }
-*/
-
-
-
-
-
-
-
-
-//===============================================================================================================================================
-
 
 void CKinectProductClassifier::classify(Mat *rgbImage )
 {
@@ -311,79 +262,29 @@ void CKinectProductClassifier::classify(Mat *rgbImage )
 	// Vergleich der Seitenverhaeltnisse
 	for (iter = (S->reference).begin(); iter != (S->reference).end(); iter++)
 	{
-		if (fabs(Suessigkeit::fGetRatio(colorImage) - (*iter)->fRatio) < 0.2) { auswahl.push_back((*iter)); }
+		if (compareRatio(*rgbImage, (*iter)->fRatio) == true) 
+		{ 
+			auswahl.push_back((*iter)); 
+		}
 	}
-
+	
     Suessigkeit::customresize(colorImage, 600);
+
 	// Vergleich der Farbwerte
 	for (iter = auswahl.begin(); iter != auswahl.end(); iter++)
 	{
-			if (compareMatHist(colorImage,( (*iter)->hist))){ auswahl2.push_back((*iter)); }
+			if (compareMatHist(colorImage,( (*iter)->hist)))
+			{ 
+				auswahl2.push_back((*iter)); 
+			}
 	}
-	
 
-	imshow("Kamerabild", colorImage);
 	cvtColor(colorImage, colorImage, CV_BGR2GRAY);
-
 	Suessigkeit* result = customsurfdetector(auswahl2, colorImage);
+
 	if ((result)->sName != "NULL")
 	{
-		cout << "Es handelt sich um das Objekt " << result->sName << endl;
+		m_pBooker->book(result->iID);
 	}
-
-
-
-	/*
-	if (ergebniss[0].dAbstand<50)
-	m_pBooker->book(ergebniss[0].iId);
-	*/
 }
 
-
-/*/MSER Analysefunktion, leider nicht funktionsfähig
-
-//vector<vector<cv::Point>> MSER_Analyser(Mat image,int Matr[GENAU][GENAU])
-{
-
-	Mat subimage,yuvimage;
-	image=imread("B_Cola.png", 1);
-
-	cvtColor(image, yuvimage, CV_BGR2GRAY);  //COLOR_BGR2YCrCb
-	vector<vector<cv::Point>> contourses;
-	
-	MSER()(yuvimage, contourses);
-
-	return contourses;
-	//MSER ms;		
-	/*
-	for(int aussenx=1; aussenx<=GENAU; aussenx++){
-		for(int ausseny=1; ausseny<=GENAU; ausseny++){
-			
-			//Definiere die Koordinaten im Vektorraum
-			int posx=image.cols*aussenx/GENAU-image.cols*(aussenx-1)/GENAU;
-			int posy=image.rows*ausseny/GENAU-image.rows*(ausseny-1)/GENAU;
-		
-			//Lege die Startwerte fest
-			int startposx=image.cols*(aussenx-1)/GENAU;
-			int startposy=image.rows*(ausseny-1)/GENAU;
-			
-			//Erzeuge rechteckigen Referenzraum und addiere Ausschlaggebende Punkte
-			Rect faceRect(startposx,startposy,posx,posy); //pos x,y je -1
-			subimage = yuvimage(faceRect).clone();
-			MSER()(subimage, contourses);
-			
-			//MSER()(subimage, contourses);
-			int size= contourses.capacity();
-			Matr[aussenx-1][ausseny-1]=size;
-		}
-	}
-	//MSER()(yuvimage, contourses);
-}	*/
-//goto MSERRES;    
-
-
- 
-
-
-//=============================================================================================================================================
-//Initialisieren der Vergleichsdatenbank aus Bilddatein für die erste Datenbankerstellung

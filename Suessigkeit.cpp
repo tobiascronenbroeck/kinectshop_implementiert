@@ -12,7 +12,11 @@ extern int minHessian_swap;
 
 using namespace std;
 using namespace cv;
-Suessigkeit::Suessigkeit(){ sName = "NULL"; }
+Suessigkeit::Suessigkeit()
+{
+	sName = "NULL";
+}
+
 Suessigkeit::Suessigkeit(string Pfad, string Name, int ID, int longerborder)
 {
 	RGBimage = imread(Pfad);
@@ -46,12 +50,11 @@ Suessigkeit::Suessigkeit(string Pfad, string Name, int ID, int longerborder)
 
 
 }
-Suessigkeit::~Suessigkeit(){}
 
-//////////////////////////////////////////////////////////////////////////////////
-///  Suessigkeit::customresize() verkleinert eine Matrix und behaelt dabei die 
-///  Seitenverhaeltnisse bei!
-//////////////////////////////////////////////////////////////////////////////////
+Suessigkeit::~Suessigkeit()
+{
+}
+
 void Suessigkeit::customresize(Mat &reference, int longerborder)
 {
 	if ((reference.cols > longerborder) || (reference.rows > longerborder)){
@@ -79,3 +82,4 @@ float Suessigkeit::fGetRatio(Mat &reference)
 	return temp;
 
 }
+
