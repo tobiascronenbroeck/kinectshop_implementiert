@@ -95,6 +95,8 @@ void Sortiment::SQLtoINI()
 
 				SQLNumResultCols(hstmt, &nCols);
 				SQLRowCount(hstmt, &nRows);
+				ofstream file("Ini.cfg");
+				string outputini;
 				while (SQL_SUCCEEDED(retcode = SQLFetch(hstmt)))
 				{
 					for (int i = 1; i <= nCols; ++i)
@@ -116,15 +118,13 @@ void Sortiment::SQLtoINI()
 							ofs << str;
 							ofs.close();
 
-							int iSchranke = iGetSchranke();
-							ofstream file("Ini.cfg");
-							file << id << "\t" << sName << "\t" << filename << endl;
-							file.close();
+							outputini = outputini + to_string(id) + "\t" + sName + "\t" + filename + "\n";
 						}
 
 					}
 				}
-
+				file << outputini;
+				file.close();
 				SQLFreeHandle(SQL_HANDLE_STMT, hstmt);
 			}
 		}

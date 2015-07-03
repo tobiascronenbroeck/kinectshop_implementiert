@@ -19,7 +19,7 @@
 #include "opencv2/flann/flann.hpp"
 #include "opencv2/objdetect/objdetect.hpp"
 
-#define tresholdcamerafailure 250 // Wird zur beschleunigung und Stabilitaet benötigt! Standart 250
+#define tresholdcamerafailure 50 // Wird zur beschleunigung und Stabilitaet benötigt! Standart 250
 #define tresholdgoodcamerakeypoints 10 // Standart 10
 #define minHessian 350           // Schwellwert fuer Surf Detector!
 
@@ -35,55 +35,6 @@ CKinectProductClassifier::CKinectProductClassifier(CKinectShopApp *app)
 	m_app = app;
 	m_pBooker = new CKinectProductBooker(app);
 
-	//Init mysql connection
-	SQLHSTMT hstmt;
-	SQLRETURN retcode;
-
-	// Allocate environment handle
-	retcode = SQLAllocHandle(SQL_HANDLE_ENV, SQL_NULL_HANDLE, &m_henv);
-
-	// Set the ODBC version environment attribute
-	if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
-		retcode = SQLSetEnvAttr(m_henv, SQL_ATTR_ODBC_VERSION, (void*) SQL_OV_ODBC3, 0); 
-
-		// Allocate connection handle
-		if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
-			retcode = SQLAllocHandle(SQL_HANDLE_DBC, m_henv, &m_hdbc); 
-
-			SQLWCHAR  errmsg[1024];
-			// Connect to data source
-			retcode = SQLConnect(m_hdbc, (SQLWCHAR*) DB_NAME, SQL_NTS, NULL, SQL_NTS, NULL, SQL_NTS);
-			SQLGetDiagRec(SQL_HANDLE_DBC, m_hdbc, 1, NULL,NULL, errmsg, 1024, NULL);
-
-			// Allocate statement handle
-			if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
-				retcode = SQLAllocHandle(SQL_HANDLE_STMT, m_hdbc, &hstmt); 
-
-				retcode = SQLExecDirect( hstmt, (SQLWCHAR*) L"SELECT id FROM products;", SQL_NTS);
-
-				SQLSMALLINT nCols = 0;
-				SQLLEN nRows = 0;
-				SQLLEN nIdicator = 0;
-				int id;
-				SQLNumResultCols( hstmt, &nCols );
-				SQLRowCount( hstmt, &nRows );
-				while(SQL_SUCCEEDED(retcode = SQLFetch(hstmt)))
-				{
-					for( int i=1; i <= nCols; ++i )
-					{
-						retcode = SQLGetData(hstmt, i, SQL_C_LONG, (SQLPOINTER) &id, sizeof(int), &nIdicator);
-						if(retcode == SQL_SUCCESS)
-						{
-							std::cout << id << std::endl;
-						}
-					}
-				}
-
-				SQLFreeHandle(SQL_HANDLE_STMT, hstmt);
-			}
-		}
-	}
-	
 }
 
 CKinectProductClassifier::~CKinectProductClassifier()
@@ -91,12 +42,6 @@ CKinectProductClassifier::~CKinectProductClassifier()
 	m_app = NULL;
 	delete m_pBooker;
 	m_pBooker = NULL;
-		
-	// Clean up mysql connection
-	SQLDisconnect(m_hdbc);
-	SQLFreeHandle(SQL_HANDLE_DBC, m_hdbc);
-	SQLFreeHandle(SQL_HANDLE_ENV, m_henv);
-
 }
 
 Suessigkeit* CKinectProductClassifier::customsurfdetector(vector<Suessigkeit*> &sortiment, Mat &img_scene, double minFlaeche)
@@ -255,7 +200,7 @@ void CKinectProductClassifier::classify(Mat *rgbImage )
 	vector<Suessigkeit*> auswahl;
 	vector<Suessigkeit*> auswahl2;
 	vector<Suessigkeit*>::iterator iter;
-
+	imshow("test", colorImage);
 	auswahl.clear();
 	auswahl2.clear();
 
