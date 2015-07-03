@@ -2,7 +2,7 @@
 
 #include <algorithm>
 #include <opencv2\opencv.hpp>
-
+#include "Sortiment.h"
 #include "KinectProductLocator.h"
 
 using namespace std;
@@ -11,7 +11,9 @@ using namespace std;
 CKinectProductLocator::CKinectProductLocator(CKinectShopApp *app)
 {
 	m_app = app;
+	Sortiment::SQLtoINI();
 	m_pClassifier = new CKinectProductClassifier(app);
+
 }
 
 CKinectProductLocator::~CKinectProductLocator()
