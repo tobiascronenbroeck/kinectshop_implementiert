@@ -75,6 +75,7 @@
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>C:\Program Files\Microsoft SDKs\Speech\v11.0\Include;C:\opencv249\build\include;$(KINECTSDK10_DIR)\inc;C:\Program Files\Microsoft SDKs\Windows\v7.1\Include;$(IncludePath)</IncludePath>
     <LibraryPath>C:\Program Files\Microsoft SDKs\Speech\v11.0\Lib;C:\opencv249\build\x64\vc12\lib;$(KINECTSDK10_DIR)\lib\amd64;C:\Program Files\Microsoft SDKs\Windows\v7.1\Lib\x64;$(LibraryPath)</LibraryPath>
+    <ExecutablePath>C:\opencv249\build\include;$(ExecutablePath)</ExecutablePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>

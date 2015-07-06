@@ -66,17 +66,21 @@ CKinectProductClassifier::~CKinectProductClassifier()
 */
 Suessigkeit* CKinectProductClassifier::customsurfdetector(vector<Suessigkeit*> &sortiment, Mat &img_scene, double minFlaeche)
 {
-	
 	if (!(sortiment.empty())){
-        
+
+		if (img_scene.empty() || img_scene.cols < 30 || img_scene.rows < 30) { return new Suessigkeit(); }
+
 			//calculates the keypoints for the Surf-Detection
 			SurfFeatureDetector detector(minHessian);
 			vector<KeyPoint> keypoints_scene;
             detector.detect(img_scene, keypoints_scene);
-
+			
 			/* Checks wether it makes sense to search. ->
 			if too less keypoints were found, return an empty @Suessigkeit*/
-			if (keypoints_scene.size() < tresholdcamerafailure)  { return new Suessigkeit(); }
+			if (keypoints_scene.size() < tresholdcamerafailure) 
+			{ 
+				return new Suessigkeit(); // Fehler beim aufrufen des destruktors von detector! tritt nur in kinectshop projekt auf!
+			}
 
 			//Else (if comparison makes sense) compute the attributes of the given picture and save in the descriptors_scene matrice.
 			SurfDescriptorExtractor extractor;
