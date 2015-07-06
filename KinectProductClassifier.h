@@ -9,6 +9,12 @@
 #include "KinectProductBooker.h"
 #include "Suessigkeit.h"
 
+
+/**
+ * Represents a Classifier that can detect sweet packagings based on their aspect ratios,
+ * their color-histogram and finally a surf detection algorithm.
+ * Picture has to be cut out sufficiently precise.
+ */
 class CKinectProductClassifier
 {
 public:

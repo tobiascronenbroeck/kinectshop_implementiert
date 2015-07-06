@@ -2,7 +2,7 @@
 
 #include <algorithm>
 #include <opencv2\opencv.hpp>
-#include "Sortiment.h"
+
 #include "KinectProductLocator.h"
 
 using namespace std;
@@ -11,9 +11,7 @@ using namespace std;
 CKinectProductLocator::CKinectProductLocator(CKinectShopApp *app)
 {
 	m_app = app;
-	Sortiment::SQLtoINI();
 	m_pClassifier = new CKinectProductClassifier(app);
-
 }
 
 CKinectProductLocator::~CKinectProductLocator()
@@ -117,7 +115,7 @@ void CKinectProductLocator::locate(NUI_SKELETON_DATA *pSkel, cv::Mat *colorImage
 
 	// calculate mid-hand position in depth image
     DepthPositionOfCenterOfHands.x = (DepthPositionOfHand[0].x+DepthPositionOfHand[1].x)/2;
-    DepthPositionOfCenterOfHands.y = (DepthPositionOfHand[0].y+DepthPositionOfHand[1].y)/2;
+    DepthPositionOfCenterOfHands.y = (DepthPositionOfHand[0].y+DepthPositionOfHand[1].y)/2; 
 
     /*  THRESHOLD FILTER
      *
@@ -282,14 +280,14 @@ void CKinectProductLocator::locate(NUI_SKELETON_DATA *pSkel, cv::Mat *colorImage
 
     // Calculate the rectangle that will be exported to the final image
     finalRectangle.x = ColorLocation.left+40;
-    finalRectangle.y = ColorLocation.top;
+    finalRectangle.y = ColorLocation.top-40;
     finalRectangle.width = abs(ColorLocation.right-ColorLocation.left-40);
     finalRectangle.height = ColorLocation.bottom-ColorLocation.top;
 
     // Export rentangle to final image
 	finalImage = colorImage->clone();
 	finalImage = finalImage(finalRectangle).clone();
-	//cv::imshow("thresholdImage", thresholdImage);
+	cv::imshow("thresholdImage", thresholdImage);
     cv::imwrite("finalImage.png", finalImage);
 
 	//Call only if Size of Picture is big enough
@@ -301,6 +299,4 @@ void CKinectProductLocator::locate(NUI_SKELETON_DATA *pSkel, cv::Mat *colorImage
 }
 
 
-// TODO:
-/*
- */
+
