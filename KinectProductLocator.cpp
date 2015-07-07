@@ -4,6 +4,7 @@
 #include <opencv2\opencv.hpp>
 
 #include "KinectProductLocator.h"
+#include "Sortiment.h"
 
 using namespace std;
 #define DEPTH_THRESHOLD 100
@@ -12,6 +13,7 @@ CKinectProductLocator::CKinectProductLocator(CKinectShopApp *app)
 {
 	m_app = app;
 	m_pClassifier = new CKinectProductClassifier(app);
+	Sortiment::SQLtoINI();
 }
 
 CKinectProductLocator::~CKinectProductLocator()

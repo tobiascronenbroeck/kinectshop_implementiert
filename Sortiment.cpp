@@ -11,6 +11,9 @@
 #include <sqltypes.h>
 #include <sqlext.h>
 
+#include <strstream>
+#include <string>
+
 SQLHENV                                 m_henv;
 SQLHDBC                                 m_hdbc;
 
@@ -118,7 +121,12 @@ void Sortiment::SQLtoINI()
 							ofs << str;
 							ofs.close();
 
-							outputini = outputini + to_string(id) + "\t" + sName + "\t" + filename + "\n";
+							char buffer[10];
+							ostrstream temp1(buffer, 10);
+							temp1 << id << ends;
+							string idstring(temp1.str());
+
+							outputini = outputini + idstring + "\t" + sName + "\t" + filename + "\n";
 						}
 
 					}
